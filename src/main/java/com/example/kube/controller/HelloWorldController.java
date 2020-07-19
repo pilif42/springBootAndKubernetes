@@ -1,4 +1,4 @@
-package com.example.kube;
+package com.example.kube.controller;
 
 import com.example.kube.domain.Greeting;
 import org.springframework.web.bind.annotation.GetMapping;
