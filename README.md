@@ -59,6 +59,28 @@ curl http://localhost:8080/greeting/ -v -X GET
         - kubectl delete deployment spring-boot-and-kubernetes
         
         
+# Same as previous section but .yaml files are created so they can simply be re-applied/re-played
+- First run:
+        cd /home/philippe/code/springBootAndKubernetes/kubernetes
+        kubectl create deployment spring-boot-and-kubernetes --image=brossierp/spring-boot-and-kubernetes --dry-run=client -o=yaml > deployment.yaml
+        kubectl apply -f deployment.yaml
+        kubectl expose deployment spring-boot-and-kubernetes --type=NodePort --port=8080 --dry-run=client -o=yaml > expose.yaml
+        kubectl apply -f expose.yaml
+- Verify:
+        - get the url with: minikube service spring-boot-and-kubernetes --url
+        - curl http://192.168.39.206:xxx/greeting/ -v -X GET
+- Clean up:
+        - kubectl delete service spring-boot-and-kubernetes 
+        - kubectl delete deployment spring-boot-and-kubernetes
+- Subsequent runs:
+        - verify that nothing is deployed yet with: kubectl get pods
+        - cd /home/philippe/code/springBootAndKubernetes/kubernetes
+        - kubectl apply -f deployment.yaml
+        - kubectl apply -f expose.yaml
+        
+        
 # TODOs
-Read https://kubernetes.io/docs/concepts/services-networking/service/
+Read the Kubernetes docs:
+      - https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/
+      - https://kubernetes.io/docs/concepts/services-networking/service/
 Script the above set of cmds        
