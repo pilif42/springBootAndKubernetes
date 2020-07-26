@@ -11,6 +11,9 @@
 
 
 # To test
+curl http://localhost:8080 -v -X GET
+200 {"id":1,"content":"Hello, World!"}
+
 curl http://localhost:8080/greeting/ -v -X GET
 200 {"id":1,"content":"Hello, World!"}
 
@@ -47,14 +50,27 @@ curl http://localhost:8080/greeting/ -v -X GET
         - kubectl get pods
                 - NAME                                          READY   STATUS    RESTARTS   AGE
                 - spring-boot-and-kubernetes-6c9b54db54-x9zn4   1/1     Running   0          25s
-- expose the deployment:
-        - kubectl expose deployment spring-boot-and-kubernetes --type=NodePort --port=8080
-                - service/spring-boot-and-kubernetes exposed
+- expose the deployment as a service:
+        - why would you do this? -> https://kubernetes.io/docs/concepts/services-networking/service/#motivation
+        - different options exist:
+                - option 1 = kubectl expose deployment spring-boot-and-kubernetes --type=NodePort --port=8080
+                        - service/spring-boot-and-kubernetes exposed
+                - option 2 (our preferred option) = kubectl expose deployment spring-boot-and-kubernetes --type=LoadBalancer --port=8080
+                        - service/spring-boot-and-kubernetes exposed
+                        - --type=LoadBalancer flag indicates that you want to expose your Service outside of the cluster.
+                                - On cloud providers that support load balancers, an external IP address would be provisioned to access the Service. 
+                                - On Minikube, the LoadBalancer type makes the Service accessible through the minikube service command (see option 2 below).
+- verify the service creation was successful:
+        - kubectl get services
 - get the url to access the service/app:
         - minikube service spring-boot-and-kubernetes --url
-                - http://192.168.39.206:31404
-- test with curl http://192.168.39.206:31404/greeting/ -v -X GET
-        - 200 {"id":2,"content":"Hello, World!"}
+                - http://192.168.39.206:31165
+- to test your service:
+        - option 1 = curl http://192.168.39.206:31165/greeting/ -v -X GET
+                - 200 {"id":2,"content":"Hello, World!"}
+        - option 2 = minikube service spring-boot-and-kubernetes
+                - to use if option 2 was selected when creating the service.
+                - it opens a browser and does a GET to http://192.168.39.206:31165/
 - to clean up:
         - Note that if you stop/start Minikube, the deployment remains active.
         - kubectl delete service spring-boot-and-kubernetes 
@@ -66,7 +82,7 @@ curl http://localhost:8080/greeting/ -v -X GET
         cd /home/philippe/code/springBootAndKubernetes/kubernetes
         kubectl create deployment spring-boot-and-kubernetes --image=brossierp/spring-boot-and-kubernetes --dry-run=client -o=yaml > deployment.yaml
         kubectl apply -f deployment.yaml
-        kubectl expose deployment spring-boot-and-kubernetes --type=NodePort --port=8080 --dry-run=client -o=yaml > expose.yaml
+        kubectl expose deployment spring-boot-and-kubernetes --type=LoadBalancer --port=8080 --dry-run=client -o=yaml > expose.yaml
         kubectl apply -f expose.yaml
 - Verify:
         - get the url with: minikube service spring-boot-and-kubernetes --url
@@ -91,6 +107,4 @@ curl http://localhost:8080/greeting/ -v -X GET
         
 # TODOs
 Read the Kubernetes docs:
-      - https://kubernetes.io/docs/concepts/services-networking/service/
-Have an ExternalIP setup for my app. Verify it with 'kubectl describe node minikube' + update comments above.
-Script the above set of cmds        
+        - https://kubernetes.io/docs/concepts/services-networking/service/
