@@ -15,7 +15,7 @@ curl http://localhost:8080/greeting/ -v -X GET
 200 {"id":1,"content":"Hello, World!"}
 
 
-# To containerize the Application which is a simple HelloWorld Spring Boot app:
+# To containerize (Docker container) the Application which is a simple HelloWorld Spring Boot app:
 - create a Dockerfile at the project root. Note the value given to APPJAR.
 - install Docker locally. Verify it is up and running with: 
         - sudo docker --version
@@ -35,9 +35,11 @@ curl http://localhost:8080/greeting/ -v -X GET
         
 # Once the app has been containerized, it is time to deploy it to Kubernetes:
 - prerequisite:
-        - I had installed Minikube locally and started it following https://github.com/pilif42/cheatsheets/blob/master/Containerization/Kubernetes/minikube
-- kubectl create deployment spring-boot-and-kubernetes --image=brossierp/spring-boot-and-kubernetes
-        - deployment.apps/spring-boot-and-kubernetes created
+        - I had installed Minikube (a lightweight Kubernetes implementation that creates a VM on your local machine and 
+        deploys a simple cluster containing only one node.) and started it following https://github.com/pilif42/cheatsheets/blob/master/Containerization/Kubernetes/minikube
+- create a deployment: fully explained at https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/
+        - kubectl create deployment spring-boot-and-kubernetes --image=brossierp/spring-boot-and-kubernetes
+                - deployment.apps/spring-boot-and-kubernetes created
 - verify the deployment was successful:
         - kubectl get deployments
                 - NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
@@ -79,8 +81,16 @@ curl http://localhost:8080/greeting/ -v -X GET
         - kubectl apply -f expose.yaml
         
         
+# Useful kubectl commands
+- To find out details about the node minikube (in a prod cluster, you would have several nodes):
+        - kubectl describe node minikube
+                - in particular: 
+                        - InternalIP = 192.168.39.206 -> the IP address of the node that is routable only within the cluster.
+                        - no ExternalIP listed.
+        
+        
 # TODOs
 Read the Kubernetes docs:
-      - https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/
       - https://kubernetes.io/docs/concepts/services-networking/service/
+Have an ExternalIP setup for my app. Verify it with 'kubectl describe node minikube' + update comments above.
 Script the above set of cmds        
